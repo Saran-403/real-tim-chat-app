@@ -5,8 +5,9 @@ import {
   PrimaryKey,
   DataType,
   Default,
-  BeforeCreate,
+  BeforeSave,
   Unique,
+  AllowNull,
 } from 'sequelize-typescript';
 import * as bcrypt from 'bcryptjs';
 
@@ -18,13 +19,16 @@ export class User extends Model {
   public id: string;
 
   @Unique
-  @Column(DataType.STRING('100'))
+  @AllowNull(false)
+  @Column(DataType.STRING(100))
   public email: string;
 
   @Unique
+  @AllowNull(false)
   @Column(DataType.STRING(20))
   public username: string;
 
+  @AllowNull(false)
   @Column(DataType.STRING)
   public password: string;
 
@@ -46,15 +50,12 @@ export class User extends Model {
   @Column(DataType.ARRAY(DataType.UUID))
   public requests: Array<string>;
 
-  @BeforeCreate
+  @BeforeSave
   static async hashPassword(user: User) {
-    if (user) {
+    if (user.password) {
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(
-        user.getDataValue('password'),
-        salt,
-      );
-      return user.setDataValue('password', hashedPassword);
+      const hashedPassword = await bcrypt.hash(user.password, salt);
+      user.password = hashedPassword;
     }
   }
 }

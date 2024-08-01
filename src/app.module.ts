@@ -1,23 +1,25 @@
 import { Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { InMemoryStorageService } from './memorystorage/in-memory-storage.service';
-import { ChatGateway } from './chat/chat.gateway';
-import { User } from './user/user.entity';
+import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
+import { ChannelModule } from './channel/channel.module';
+import { MessageModule } from './message/message.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    SequelizeModule.forRoot({
-      dialect: 'sqlite',
-      storage: ':memory:',
-      models: [User],
-      autoLoadModels: true,
-      synchronize: true,
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true, // Makes ConfigModule globally available
     }),
-    SequelizeModule.forFeature([User]),
+    AuthModule,
+    UserModule,
+    ChannelModule,
+    MessageModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, InMemoryStorageService, ChatGateway],
+  controllers: [AppController, AuthController],
+  providers: [AppService],
 })
 export class AppModule {}

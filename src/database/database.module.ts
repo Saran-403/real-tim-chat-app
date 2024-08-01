@@ -11,6 +11,7 @@ import { User } from '../user/user.entity';
       autoLoadModels: true,
       synchronize: true,
     }),
+    SequelizeModule.forFeature([User]),
   ],
 })
 export class DatabaseModule {}
